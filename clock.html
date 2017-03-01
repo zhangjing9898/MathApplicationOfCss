@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>时钟效果</title>
+		<style type="text/css">
+			body{
+				font-family: "微软雅黑";
+			}
+			ol,ul{
+				margin: 0;
+				padding: 0;
+				list-style: none;
+			}
+			/*表盘*/
+			.clock{
+				position: relative;
+				width: 200px;
+				height: 200px;
+				border-radius: 50%;
+				background-color: #292A38;
+				margin: 50px auto;
+			}
+			/*表盘中心*/
+			.circle{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform-origin: left center;
+				background: #fff;
+				width: 10px;
+				height: 10px;
+				border-radius: 50%;
+				margin-top: -5px;
+				margin-left: -5px;
+			}
+			/*刻度*/
+			.line-hour li,
+			.line-min li{
+				position:absolute;
+				left: 50%;
+				top: 50%;
+				transform-origin: 0 0;
+				background-color: #fff;
+			}
+			.line-hour li{
+				width: 10px;
+				height: 2px;
+			}
+			.line-min li{
+				width: 5px;
+				height: 2px;
+			}
+			/*数字*/
+			.number{
+				position: absolute;
+				height: 150px;
+				width: 150px;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%,-50%);
+				font-size: 15px;
+				color: #FFFFFF;
+			}
+			.number li{
+				position: absolute;
+				transform: translate(-50%,-50%);
+			}
+			/*指针*/
+			.pointer li{
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform-origin: left center;
+				background: #FFFFFF; 
+			}
+			.hour{
+				width: 45px;
+				height: 3px;
+			}
+			.min{
+				width: 60px;
+				height: 2px;
+			}
+			.pointer li.sec {
+				width: 90px;
+				height: 1px;
+				margin-top: -1px;
+				background-color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="clock">
+			<ul class="line-min"></ul>
+			<ul class="line-hour"></ul>
+			<ol class="number"></ol>
+			<ul class="pointer">
+				<li class="hour"></li>
+				<li class="min"></li>
+				<li class="sec"></li>
+				<li class="circle"></li>
+			</ul>
+		</div>
+		<script type="text/javascript" src="js/jquery-2.1.3.min.js" ></script>
+		<script>
+			function init(){
+				drawLines($('.line-min'),60,85);
+				drawLines($('.line-hour'),12,80);
+				drawNumbers($('.number'));
+				move();
+			}
+			init();
+			/*绘制钟表刻度线
+			 * wrap:刻度线的父容器
+			 * total:刻度线的总个数
+			 * translateX 刻度线在x轴方向的偏移量
+			 */
+			function drawLines(wrap,total,translateX){
+				var gap=360/total;
+				var strHtml='';
+				for(var i=0;i<total;i++){
+					strHtml+='<li style="transform:rotate('+(i*gap)+'deg) translate('+translateX+'px,-50%)"></li>';
+				}
+				wrap.html(strHtml);
+			}
+			/*绘制时钟数字
+			  wrap 数字的父容器*/
+			function drawNumbers(wrap){
+				var radius=wrap.width()/2;
+				
+				var strHtml='';
+				for(var i=1;i<=12;i++){
+					/*计算弧度*/
+					var myAngle=(i-3)/6*Math.PI; 
+					
+					var myX=radius+radius*Math.cos(myAngle);
+					var myY=radius+radius*Math.sin(myAngle);
+					
+					strHtml+='<li style="left:'+myX+'px;top:'+myY+'px">'+i+'</li>';
+				}
+				wrap.html(strHtml);
+			}
+			/*钟表走动，转动秒针、分针、时针*/
+			function move(){
+				var domHour=$(".hour"),
+					domMin=$('.min'),
+					domSec=$(".sec");
+					
+				setInterval(function(){
+					var now=new Date(),
+						hour=now.getHours(),
+						min=now.getMinutes(),
+						sec=now.getSeconds();
+						
+					var secAngle=sec*6-90,
+						minAngle=min*6+sec*0.1-90,/*0.1=6/60 */
+						hourAngle=hour*30+min*0.5-90;/*0.5=30/60*/
+						
+					domSec.css('transform','rotate('+secAngle+'deg)');
+					domMin.css('transform','rotate('+minAngle+'deg)');
+					domHour.css('transform','rotate('+hourAngle+'deg)');
+					
+					document.title=hour+':'+min+':'+sec;
+					
+				},1000);
+			}
+		</script>
+	</body>
+</html>
